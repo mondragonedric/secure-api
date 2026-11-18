@@ -11,8 +11,8 @@ class EquipmentStatus(str, Enum):
 
 class EquipmentCreate(BaseModel):
     name: str = Field(min_length=2, max_length=100)
-    type: str
-    serial_number: str
+    type: str = Field(min_length=1, max_length=50)
+    serial_number: str = Field(min_length=1, max_length=100)
     status: EquipmentStatus = EquipmentStatus.disponible
 
 

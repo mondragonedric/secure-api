@@ -10,6 +10,7 @@ from models import Equipment, User
 from rate_limit import esta_bloqueado, limpiar, registrar_fallo
 from schemas import EquipmentCreate, EquipmentRead, UserCreate, UserRead
 from security import (
+    DUMMY_HASH,
     create_access_token,
     get_current_user,
     hash_password,
@@ -43,9 +44,11 @@ def login(
         )
 
     user = db.scalar(select(User).where(User.username == form.username))
-    if user is None or not verify_password(form.password, user.hashed_password):
+    hash_a_verificar = user.hashed_password if user else DUMMY_HASH
+    clave_ok = verify_password(form.password, hash_a_verificar)
+    if user is None or not clave_ok:
         bloqueada = registrar_fallo(ip)
-        logger.warning("LOGIN_FALLIDO usuario=%s ip=%s", form.username, ip)
+        logger.warning("LOGIN_FALLIDO usuario=%r ip=%s", form.username, ip)
         if bloqueada:
             logger.warning("IP_BLOQUEADA ip=%s", ip)
         raise HTTPException(
@@ -86,7 +89,10 @@ def crear_usuario(
         raise HTTPException(status_code=409, detail="El usuario ya existe")
     db.refresh(nuevo)
     logger.info(
-        "USUARIO_CREADO por=%s nuevo=%s rol=%s", user.username, nuevo.username, nuevo.role
+        "USUARIO_CREADO por=%s nuevo=%r rol=%s",
+        user.username,
+        nuevo.username,
+        nuevo.role,
     )
     return nuevo
 
@@ -113,7 +119,10 @@ def crear_equipo(
         raise HTTPException(status_code=409, detail="El número de serie ya existe")
     db.refresh(nuevo)
     logger.info(
-        "EQUIPO_CREADO por=%s id=%s serial=%s", user.username, nuevo.id, nuevo.serial_number
+        "EQUIPO_CREADO por=%s id=%s serial=%r",
+        user.username,
+        nuevo.id,
+        nuevo.serial_number,
     )
     return nuevo
 
@@ -153,6 +162,6 @@ def borrar_equipo(
     db.delete(equipo)
     db.commit()
     logger.info(
-        "EQUIPO_ELIMINADO por=%s id=%s serial=%s", user.username, equipo_id, serial
+        "EQUIPO_ELIMINADO por=%s id=%s serial=%r", user.username, equipo_id, serial
     )
     return {"mensaje": "Equipo eliminado"}
