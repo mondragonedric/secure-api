@@ -1,3 +1,4 @@
+![tests](https://github.com/mondragonedric/secure-api/actions/workflows/tests.yml/badge.svg)
 # Secure API
 
 API REST de inventario de equipos informáticos, creada para practicar seguridad en backend: autenticación, autorización por roles, hash de contraseñas, validación, logs y límite de intentos de login.
