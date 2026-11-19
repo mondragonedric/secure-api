@@ -58,7 +58,7 @@ def login(
         )
 
     limpiar(ip)
-    logger.info("LOGIN_OK usuario=%s rol=%s ip=%s", user.username, user.role, ip)
+    logger.info("LOGIN_OK usuario=%r rol=%s ip=%s", user.username, user.role, ip)
     token = create_access_token(user.username, user.role)
     return {"access_token": token, "token_type": "bearer"}
 
@@ -89,7 +89,7 @@ def crear_usuario(
         raise HTTPException(status_code=409, detail="El usuario ya existe")
     db.refresh(nuevo)
     logger.info(
-        "USUARIO_CREADO por=%s nuevo=%r rol=%s",
+        "USUARIO_CREADO por=%r nuevo=%r rol=%s",
         user.username,
         nuevo.username,
         nuevo.role,
@@ -119,7 +119,7 @@ def crear_equipo(
         raise HTTPException(status_code=409, detail="El número de serie ya existe")
     db.refresh(nuevo)
     logger.info(
-        "EQUIPO_CREADO por=%s id=%s serial=%r",
+        "EQUIPO_CREADO por=%r id=%s serial=%r",
         user.username,
         nuevo.id,
         nuevo.serial_number,
@@ -145,7 +145,7 @@ def actualizar_equipo(
         db.rollback()
         raise HTTPException(status_code=409, detail="El número de serie ya existe")
     db.refresh(equipo)
-    logger.info("EQUIPO_ACTUALIZADO por=%s id=%s", user.username, equipo.id)
+    logger.info("EQUIPO_ACTUALIZADO por=%r id=%s", user.username, equipo.id)
     return equipo
 
 
@@ -162,6 +162,6 @@ def borrar_equipo(
     db.delete(equipo)
     db.commit()
     logger.info(
-        "EQUIPO_ELIMINADO por=%s id=%s serial=%r", user.username, equipo_id, serial
+        "EQUIPO_ELIMINADO por=%r id=%s serial=%r", user.username, equipo_id, serial
     )
     return {"mensaje": "Equipo eliminado"}

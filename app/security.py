@@ -33,6 +33,10 @@ def verify_password(plain: str, hashed: str) -> bool:
     return password_hash.verify(plain, hashed)
 
 
+def hash_password(plain: str) -> str:
+    return password_hash.hash(plain)
+
+
 def create_access_token(username: str, role: str) -> str:
     expire = datetime.now(timezone.utc) + timedelta(minutes=EXPIRE_MINUTES)
     payload = {"sub": username, "role": role, "exp": expire}
@@ -49,7 +53,9 @@ def get_current_user(
     )
     try:
         payload = jwt.decode(
-            token, SECRET_KEY, algorithms=[ALGORITHM],
+            token,
+            SECRET_KEY,
+            algorithms=[ALGORITHM],
             options={"require": ["exp", "sub"]},
         )
     except jwt.InvalidTokenError:
@@ -62,15 +68,12 @@ def get_current_user(
         raise error
     return user
 
-def hash_password(plain: str) -> str:
-    return password_hash.hash(plain)
-
 
 def require_role(*roles: str):
     def checker(user: User = Depends(get_current_user)) -> User:
         if user.role not in roles:
             logger.warning(
-                "ACCESO_DENEGADO usuario=%s rol=%s requerido=%s",
+                "ACCESO_DENEGADO usuario=%r rol=%s requerido=%s",
                 user.username,
                 user.role,
                 "/".join(roles),

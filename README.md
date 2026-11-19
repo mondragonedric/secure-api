@@ -15,12 +15,12 @@ Python 3.13 · FastAPI · PostgreSQL 16 · SQLAlchemy · Alembic · Docker Compo
 - **Autenticación:** `POST /login` entrega un token JWT firmado con caducidad.
 - **Autorización por roles:** `admin` puede todo; `tecnico` puede ver, crear y editar equipos, pero no borrar ni administrar usuarios.
 - **Contraseñas:** solo se guarda el hash (Argon2id con salt), nunca la contraseña.
-- **Validación:** esquemas Pydantic (nombres, estados permitidos, longitud de contraseña) y número de serie único a nivel de base de datos.
-- **Logs de seguridad:** inicios de sesión correctos y fallidos, altas, cambios y bajas de equipos, accesos denegados. Los valores que controla el usuario se registran escapados para evitar inyección en logs.
+- **Validación:** esquemas Pydantic (nombres, estados permitidos, longitud de contraseña, caracteres permitidos en el nombre de usuario) y número de serie único a nivel de base de datos.
+- **Logs de seguridad:** inicios de sesión correctos y fallidos, altas, cambios y bajas de equipos, accesos denegados. Los nombres de usuario y demás valores controlados por el usuario se registran escapados para evitar inyección en logs.
 - **Límite de intentos:** 5 logins fallidos por IP bloquean esa IP durante 5 minutos (`429`).
 - **Respuestas que no filtran información:** usuario inexistente y contraseña incorrecta devuelven el mismo error.
 - **Docker:** la API corre como usuario sin privilegios y la base de datos solo escucha en `127.0.0.1`.
-- **Pruebas y CI:** 13 pruebas con pytest sobre una base de datos aparte; GitHub Actions las corre en cada push.
+- **Pruebas y CI:** 13 pruebas con pytest sobre una base de datos aparte; GitHub Actions las corre en cada push a `main` y en cada pull request.
 - **Migraciones:** Alembic versiona los cambios de la base de datos.
 
 ## Endpoints
@@ -65,13 +65,15 @@ Requisitos: Docker Desktop.
 
 ## Pruebas
 
-Las pruebas usan una base de datos aparte (`<POSTGRES_DB>_test`) para no tocar los datos reales.
+Las pruebas usan una base de datos aparte (el nombre de tu base seguido de `_test`) para no tocar los datos reales.
 
 ```
-docker compose exec db psql -U <POSTGRES_USER> <POSTGRES_DB> -c "CREATE DATABASE <POSTGRES_DB>_test;"
+docker compose exec db psql -U TU_USUARIO -d postgres -c "CREATE DATABASE TU_BASE_test;"
 pip install -r requirements.txt
 pytest -v
 ```
+
+Cambia `TU_USUARIO` y `TU_BASE` por los valores de tu `.env`.
 
 ## Limitaciones conocidas
 
