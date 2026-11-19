@@ -1,4 +1,5 @@
 from enum import Enum
+
 from pydantic import BaseModel, ConfigDict, Field
 
 
@@ -20,13 +21,14 @@ class EquipmentRead(EquipmentCreate):
     id: int
     model_config = ConfigDict(from_attributes=True)
 
+
 class UserRole(str, Enum):
     admin = "admin"
     tecnico = "tecnico"
 
 
 class UserCreate(BaseModel):
-    username: str = Field(min_length=3, max_length=50)
+    username: str = Field(min_length=3, max_length=50, pattern=r"^[A-Za-z0-9_.-]+$")
     password: str = Field(min_length=8, max_length=128)
     role: UserRole = UserRole.tecnico
 
